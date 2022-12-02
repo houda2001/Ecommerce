@@ -1,1 +1,50 @@
+version: "3"
+services:
+
+  mongo:
+    container_name: mongo
+    image: mongo
+    restart: always
+    ports:
+     - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: test
+      MONGO_INITDB_ROOT_PASSWORD: test
+    networks: 
+     - shared-network
+    volumes:
+      - ./mongoDB:/data/db
+
+  api:
+    container_name: my-api
+    image: api:latest
+    stdin_open: true
+    build:
+      context: api
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    networks:
+      - shared-network
+    depends_on:
+      - mongo
+  
+  client:
+    container_name: client-app
+    image: client-app:latest
+    build:
+      context: client
+      dockerfile: Dockerfile
+    stdin_open: true
+    ports:
+      - "3000:3000"
+    networks:
+      - shared-network
+    depends_on:
+      - api
+
+networks:
+  shared-network:
+    driver: bridge
+    
 
